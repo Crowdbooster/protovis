@@ -1,4 +1,4 @@
-// c84a76b5fc52ee0fdbd02ca5e82660a0fdab5da8
+// 2f643e2caa5f7563dce1552e887f57815d39c9a9
 /**
  * @class The built-in Array class.
  * @name Array
@@ -360,15 +360,15 @@ pv.ancestor = function(a, e) {
  * @private Computes the accumulated scroll offset given an element.
  */
 pv.scrollOffset = function(elem) {
-    var left = 0, 
+    var left = 0,
         top  = 0;
     while(elem){
         left += elem.scrollLeft || 0;
         top  += elem.scrollTop  || 0;
-        
+
         elem = elem.parentNode;
     }
-    
+
     return [left, top];
 };
 
@@ -423,13 +423,13 @@ pv.functor = function(v) {
 /**
  * Gets the value of an existing, own or inherited, and not "nully", property of an object,
  * or if unsatisfied, a specified default value.
- * 
+ *
  * @param {object} [o] The object whose property value is desired.
  * @param {string} p The desired property name.
- * If the value is not a string, 
+ * If the value is not a string,
  * it is converted to one, as if String(p) were used.
  * @param [dv=undefined] The default value.
- * 
+ *
  * @returns {any} The satisfying property value or the specified default value.
  */
 pv.get = function(o, p, dv){
@@ -1175,7 +1175,7 @@ pv.repeat = function(array, n) {
 /**
  * Creates an array of the specified length,
  * and, optionally, initializes it with the specified default value.
- * 
+ *
  * @param {number} [len] the length of the array; defaults to 0.
  * @param {number} [dv] the default value with which to initialize each position; defaults to undefined.
  * @returns {array} an array as specified.
@@ -1187,7 +1187,7 @@ pv.array = function(len, dv){
             a[i] = dv;
         }
     }
-    
+
     return a;
 };
 
@@ -2786,13 +2786,13 @@ pv.Vector.prototype.perp = function() {
 
 /**
  * Returns a vector which is the result of rotating this vector by the specified angle.
- * 
+ *
  * @returns {pv.Vector} a rotated vector.
  */
 pv.Vector.prototype.rotate = function(angle) {
     var c = Math.cos(angle);
     var s = Math.sin(angle);
-    
+
     return new pv.Vector(c*this.x -s*this.y, s*this.x + c*this.y);
 };
 
@@ -3304,6 +3304,7 @@ pv.Scale.quantitative = function() {
    * @param {boolean} [options.roundInside=true] should the ticks be ensured to be strictly inside the scale domain, or to strictly outside the scale domain.
    * @param {boolean} [options.numberExponentMin=-Inifinity] minimum value for the step exponent.
    * @param {boolean} [options.numberExponentMax=+Inifinity] maximum value for the step exponent.
+   * @param {boolean} [options.prettyFormat=true] Use abbreviations for large numbers, i.e. [3,000, ..., 8,000] => [3.0K, ..., 8.0K]
    * @returns {number[]} an array input domain values to use as ticks.
    */
   scale.ticks = function(m, options) {
@@ -3472,11 +3473,12 @@ pv.Scale.quantitative = function() {
     if (m == null) {
         m = 10;
     }
-    
+
     var roundInside = pv.get(options, 'roundInside', true);
     var exponentMin = pv.get(options, 'numberExponentMin', -Infinity);
     var exponentMax = pv.get(options, 'numberExponentMax', +Infinity);
-    
+    var prettyFormat = pv.get(options, 'prettyFormat', true);
+
     //var step = pv.logFloor(span / m, 10);
     var exponent = Math.floor(pv.log(span / m, 10));
     var overflow = false;
@@ -3487,39 +3489,45 @@ pv.Scale.quantitative = function() {
         exponent = exponentMin;
         overflow = true;
     }
-    
+
     var step = Math.pow(10, exponent);
     var mObtained = (span / step);
-    
+
     var err = m / mObtained;
-    if (err <= .15 && exponent < exponentMax - 1) { 
+    if (err <= .15 && exponent < exponentMax - 1) {
         step *= 10;
     } else if (err <= .35) {
-        step *= 5; 
+        step *= 5;
     } else if (err <= .75) {
         step *= 2;
     }
-    
+
     // Account for floating point precision errors
     exponent = Math.floor(pv.log(step, 10) + 1e-10);
-        
+
     var start = step * Math[roundInside ? 'ceil'  : 'floor'](min / step);
     var end   = step * Math[roundInside ? 'floor' : 'ceil' ](max / step);
-    
-    tickFormat = pv.Format.number().fractionDigits(Math.max(0, -exponent));
-    
+
+
+    if (prettyFormat) {
+      tickFormat = pv.Format.number().integerDigits(2);
+    } else {
+      tickFormat = pv.Format.number().fractionDigits(Math.max(0, -exponent));
+    }
+    console.log(tickFormat);
+
     var ticks = pv.range(start, end + step, step);
     if(reverse){
         ticks.reverse();
     }
-    
+
     ticks.roundInside = roundInside;
     ticks.step        = step;
     ticks.exponent    = exponent;
     ticks.exponentOverflow = overflow;
     ticks.exponentMin = exponentMin;
     ticks.exponentMax = exponentMax;
-    
+
     return ticks;
   };
 
@@ -3553,10 +3561,10 @@ pv.Scale.quantitative = function() {
 
     /**
      * Gets or sets a custom tick formatter function.
-     * 
+     *
      * @function
      * @name pv.Scale.quantitative.prototype.tickFormatter
-     * @param {function} [f] 
+     * @param {function} [f]
      * @returns {pv.Scale|function} a custom formatter function or this instance.
      */
     scale.tickFormatter = function (f) {
@@ -3564,10 +3572,10 @@ pv.Scale.quantitative = function() {
         tickFormatter = f;
         return this;
       }
-      
+
       return tickFormatter;
    };
-    
+
   /**
    * Formats the specified tick value using the appropriate precision, based on
    * the step interval between tick marks. If {@link #ticks} has not been called,
@@ -3580,7 +3588,7 @@ pv.Scale.quantitative = function() {
    */
   scale.tickFormat = function (t) {
       var formatter = tickFormatter || tickFormat;
-      return formatter(t); 
+      return formatter(t);
   };
 
   /**
@@ -4063,7 +4071,7 @@ pv.Scale.ordinal = function() {
    * The computed step width can be retrieved from the range as
    * <tt>scale.range().step</tt>.
    * </p>
-   * 
+   *
    * @function
    * @name pv.Scale.ordinal.prototype.split
    * @param {number} min minimum value of the output range.
@@ -4082,7 +4090,7 @@ pv.Scale.ordinal = function() {
         step = (max - min) / N;
         r = pv.range(min + step / 2, max, step);
     }
-    
+
     r.step = step;
     return this;
   };
@@ -4176,14 +4184,14 @@ pv.Scale.ordinal = function() {
         B = (R * band) / N;
         M = N > 1 ? ((R - N * B) / (N - 1)) : 0;
         S = M + B;
-        
+
         r = pv.range(min + B / 2, max, S);
     }
-    
+
     r.step   = S;
     r.band   = B;
     r.margin = M;
-    
+
     return this;
   };
 
@@ -4203,9 +4211,9 @@ pv.Scale.ordinal = function() {
    * @see #split
    */
   scale.splitFlush = function(min, max) {
-    var n = this.domain().length, 
+    var n = this.domain().length,
         step = (max - min) / (n - 1);
-    
+
     r = (n == 1) ? [(min + max) / 2]
         : pv.range(min, max + step / 2, step);
     return this;
@@ -4716,11 +4724,11 @@ pv.Color = function(color, opacity) {
 
 /**
  * Returns an equivalent color in the HSL color space.
- * 
+ *
  * @returns {pv.Color.Hsl} an HSL color.
  */
-pv.Color.prototype.hsl = function() { 
-    return this.rgb().hsl(); 
+pv.Color.prototype.hsl = function() {
+    return this.rgb().hsl();
 };
 
 /**
@@ -4912,21 +4920,21 @@ pv.Color.Rgb.prototype.darker = function(k) {
 };
 
 /**
- * Converts an RGB color value to HSL. 
+ * Converts an RGB color value to HSL.
  * Conversion formula adapted from http://en.wikipedia.org/wiki/HSL_color_space.
- * 
+ *
  * (Adapted from http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript)
- * 
+ *
  * @returns pv.Color.Hsl
  */
 pv.Color.Rgb.prototype.hsl = function(){
     var r = this.r / 255;
     var g = this.g / 255;
     var b = this.b / 255;
-    
-    var max = Math.max(r, g, b); 
+
+    var max = Math.max(r, g, b);
     var min = Math.min(r, g, b);
-    
+
     var l = (max + min) / 2;
     var h, s;
 
@@ -4940,7 +4948,7 @@ pv.Color.Rgb.prototype.hsl = function(){
             case g: h = (b - r) / d + 2; break;
             case b: h = (r - g) / d + 4; break;
         }
-        
+
         h /= 6;
     }
 
@@ -5382,7 +5390,7 @@ pv.Colors.category19 = function() {
 };
 (function() {
     /* Adapted from https://gitorious.org/~brendansterne/protovis/brendansternes-protovis */
-    
+
     /**
      * TBD Returns the {@link pv.FillStyle} for the specified format string.
      * For example:
@@ -5392,7 +5400,7 @@ pv.Colors.category19 = function() {
      * <li>linear-gradient(to top, white, red 40%, black 100%)</li>
      * <li>linear-gradient(90deg, white, red 40%, black 100%)</li>
      * </ul>
-     * 
+     *
      * @param {string} format the gradient specification string.
      * @returns {pv.FillStyle} the corresponding <tt>FillStyle</tt>.
      * @see <a href="http://www.w3.org/TR/css3-images/#gradients">CSS3 Gradients</a>
@@ -5434,23 +5442,23 @@ pv.Colors.category19 = function() {
 
     /*
      * linear-gradient(<text>) <text> := [<angle-spec>, ]<color-stop>, ...
-     * 
-     * <angle-spec> := <to-side-or-corner> | <angle-number> 
+     *
+     * <angle-spec> := <to-side-or-corner> | <angle-number>
      *   -> default <angle-spec> is "to bottom"
-     *    
-     * <to-side-or-corner> := to (top | bottom) || (left | right) 
-     *   top    -> 0deg 
-     *   right  -> 90deg 
-     *   bottom -> 180deg 
+     *
+     * <to-side-or-corner> := to (top | bottom) || (left | right)
+     *   top    -> 0deg
+     *   right  -> 90deg
+     *   bottom -> 180deg
      *   left   -> 270deg
-     * 
-     * <angle-number> := <number>[deg] 
-     * 
-     * examples: 
+     *
+     * <angle-number> := <number>[deg]
+     *
+     * examples:
      * "bottom, white to top, black"
-     *    linear-gradient(to top, white, black) 
-     *   
-     * "bottom-right, white to top-left, black" 
+     *    linear-gradient(to top, white, black)
+     *
+     * "bottom-right, white to top-left, black"
      *    linear-gradient(to top left, white, black)
      */
     function parseLinearGradient(text) {
@@ -5481,9 +5489,9 @@ pv.Colors.category19 = function() {
                         keyAngle = m[6] + ' ' + keyAngle;
                     }
                 }
-                
+
                 angle = pv.radians(keyAnglesDeg[keyAngle]);
-                
+
                 terms.shift();
             }
         } else {
@@ -5499,7 +5507,7 @@ pv.Colors.category19 = function() {
                 terms.shift();
             }
         }
-                
+
         var stops = parseStops(terms);
         switch (stops.length) {
             case 0: return null;
@@ -5510,21 +5518,21 @@ pv.Colors.category19 = function() {
     }
 
     /*
-     * radial-gradient(<text>) 
-     * 
-     * <text> := [<focal-point-spec>, ]<color-stop>, ... 
-     * 
-     * not implemented: 
+     * radial-gradient(<text>)
+     *
+     * <text> := [<focal-point-spec>, ]<color-stop>, ...
+     *
+     * not implemented:
      * <focal-point-spec> := at <point-or-side-or-corner> |
-     *                       at <percentage-position> | 
+     *                       at <percentage-position> |
      *                       at <percentage-position> <percentage-position>
-     * 
-     * <point-or-side-or-corner> := center | top left | top right | bottom left | bottom right | ... 
+     *
+     * <point-or-side-or-corner> := center | top left | top right | bottomleft | bottom right | ...
      *   -> default <point-or-side-or-corner> = "center"
-     * 
-     * <percentage-position> := <number>% 
-     * 
-     * examples: 
+     *
+     * <percentage-position> := <number>%
+     *
+     * examples:
      *   radial-gradient(at center, white, black)
      */
     function parseRadialGradient(text) {
@@ -5532,7 +5540,7 @@ pv.Colors.category19 = function() {
         if (!terms.length) {
             return null;
         }
-        
+
         var stops = parseStops(terms);
         switch (stops.length) {
             case 0: return null;
@@ -5545,18 +5553,18 @@ pv.Colors.category19 = function() {
     function parseText(text){
         var colorFuns  = {};
         var colorFunId = 0;
-        
+
         text = text.replace(/\b\w+?\(.*?\)/g, function($0){
-            var id = '__color' + (colorFunId++); 
+            var id = '__color' + (colorFunId++);
             colorFuns[id] = $0;
             return id;
         });
-        
+
         var terms = text.split(/\s*,\s*/);
         if (!terms.length) {
             return null;
         }
-        
+
         // Re-insert color functions
         if(colorFunId){
             terms.forEach(function(id, index){
@@ -5565,16 +5573,16 @@ pv.Colors.category19 = function() {
                 }
             });
         }
-        
+
         return terms;
     }
-    
+
     /*
-     * COLOR STOPS 
-     * <color-stop> := <color-spec> [<percentage-offset>] 
-     * 
-     * <percentage-position> := <number>% 
-     * 
+     * COLOR STOPS
+     * <color-stop> := <color-spec> [<percentage-offset>]
+     *
+     * <percentage-position> := <number>%
+     *
      * <color-spec> := rgb() | rgba() | hsl() | hsla() | white | ...
      */
     function parseStops(terms) {
@@ -5607,7 +5615,7 @@ pv.Colors.category19 = function() {
                 var stop = {
                     color: pv.color(m[1])
                 };
-                
+
                 var offsetPercent = parseFloat(m[2]); // tolerates text suffixes
                 if (isNaN(offsetPercent)) {
                     if (!stops.length) {
@@ -5616,9 +5624,9 @@ pv.Colors.category19 = function() {
                         offsetPercent = Math.max(maxOffsetPercent, 100);
                     }
                 }
-                
+
                 stops.push(stop);
-                
+
                 if (isNaN(offsetPercent)) {
                     pendingOffsetStops.push(stop);
                 } else {
@@ -5681,34 +5689,34 @@ pv.Colors.category19 = function() {
 
         return stops;
     }
-    
+
     // -----------
-    
+
     var FillStyle = pv.FillStyle = function(type) {
         this.type = type;
     };
-    
-    /* 
+
+    /*
      * Provide {@link pv.Color} compatibility.
      */
     FillStyle.prototype = new pv.Color('none', 1);
-    
+
     FillStyle.prototype.rgb = function(){
         return pv.color(this.color).alpha(this.opacity);
     };
-    
+
     /**
      * Constructs a solid fill style. This constructor should not be invoked
      * directly; use {@link pv.fillStyle} instead.
-     * 
+     *
      * @class represents a solid fill.
-     * 
+     *
      * @extends pv.FillStyle
      */
     var Solid = pv.FillStyle.Solid = function(color, opacity) {
-        
+
         FillStyle.call(this, 'solid');
-        
+
         if(color.rgb){
             this.color   = color.color;
             this.opacity = color.opacity;
@@ -5717,13 +5725,13 @@ pv.Colors.category19 = function() {
             this.opacity = opacity;
         }
     };
-    
+
     Solid.prototype = pv.extend(pv.FillStyle);
-    
+
     Solid.prototype.alpha = function(opacity){
         return new Solid(this.color, opacity);
     };
-    
+
     Solid.prototype.brighter = function(k){
         return new Solid(this.rgb().brighter(k));
     };
@@ -5731,74 +5739,74 @@ pv.Colors.category19 = function() {
     Solid.prototype.darker = function(k){
         return new Solid(this.color.darker(k));
     };
-    
+
     pv.FillStyle.transparent = new Solid(pv.Color.transparent);
-    
+
     // ----------------
-    
+
     var gradient_id = 0;
 
     var Gradient = pv.FillStyle.Gradient = function(type, stops) {
         FillStyle.call(this, type);
-        
+
         this.id = ++gradient_id;
         this.stops = stops;
-        
+
         if(stops.length){
             // Default color for renderers that do not support gradients
             this.color = stops[0].color.color;
         }
     };
-    
+
     Gradient.prototype = pv.extend(pv.FillStyle);
-    
+
     Gradient.prototype.rgb = function(){
         return this.stops.length ? this.stops[0].color : undefined;
     };
-    
+
     Gradient.prototype.alpha = function(opacity){
         return this._clone(this.stops.map(function(stop){
             return {offset: stop.offset, color: stop.color.alpha(opacity)};
         }));
     };
-    
+
     Gradient.prototype.darker = function(k){
         return this._clone(this.stops.map(function(stop){
             return {offset: stop.offset, color: stop.color.darker(k)};
         }));
     };
-    
+
     Gradient.prototype.brighter = function(k){
         return this._clone(this.stops.map(function(stop){
             return {offset: stop.offset, color: stop.color.brighter(k)};
         }));
     };
-    
+
     // ----------------
-    
+
     var LinearGradient = pv.FillStyle.LinearGradient = function(angle, stops) {
         Gradient.call(this, 'lineargradient', stops);
-        
+
         this.angle = angle;
     };
 
     LinearGradient.prototype = pv.extend(Gradient);
-    
+
     LinearGradient.prototype._clone = function(stops){
         return new LinearGradient(this.angle, stops);
     };
-    
+
     // ----------------
-    
+
     var RadialGradient = pv.FillStyle.RadialGradient = function(cx, cy, stops) {
         Gradient.call(this, 'radialgradient', stops);
-        
+
         this.cx = cx;
         this.cy = cy;
     };
-    
+
     RadialGradient.prototype = pv.extend(Gradient);
-    
+
     RadialGradient.prototype._clone = function(stops){
         return new RadialGradient(this.cx, this.cy, stops);
     };
@@ -6078,7 +6086,7 @@ pv.SvgScene.removeFillStyleDefinitions = function(scenes) {
   pv.SvgScene.addFillStyleDefinition = function(scenes, fill) {
     var isLinear = fill.type === 'lineargradient';
     if (isLinear || fill.type === 'radialgradient') {
-      
+
       var g = scenes.$g;
       var results = g.getElementsByTagName('defs');
       var defs;
@@ -6087,21 +6095,21 @@ pv.SvgScene.removeFillStyleDefinitions = function(scenes) {
       } else {
         defs = g.appendChild(this.create("defs"));
       }
-      
+
       var elem;
       var className = '__pv_gradient' + fill.id;
-      
+
       // TODO: check this check exists method. It looks wrong...
       //1107[PVALE] - No ideia what this was supposed to do, but the method querySelector does not seem to exist
       results = undefined; //defs.querySelector('.' + className);
       if (!results) {
         var instId = '__pv_gradient' + fill.id + '_inst_' + (++gradient_definition_id);
-        
+
         elem = defs.appendChild(this.create(isLinear ? "linearGradient" : "radialGradient"));
         elem.setAttribute("id",    instId);
         elem.setAttribute("class", className);
 //       elem.setAttribute("gradientUnits","userSpaceOnUse");
-        
+
         if(isLinear){
           // x1,y1 -> x2,y2 form the gradient vector
           // See http://www.w3.org/TR/css3-images/#gradients example 11 on calculating the gradient line
@@ -6109,18 +6117,18 @@ pv.SvgScene.removeFillStyleDefinitions = function(scenes) {
           // angle = (gradAngle - 90) - 45 = angle - 135
           var svgAngle  = fill.angle - Math.PI/2;
           var diagAngle = Math.abs(svgAngle % (Math.PI/2)) - Math.PI/4;
-          
+
           // Radius from the center of the normalized bounding box
           var radius = Math.abs((Math.SQRT2/2) * Math.cos(diagAngle));
-          
+
           var dirx = radius * Math.cos(svgAngle);
           var diry = radius * Math.sin(svgAngle);
-          
+
           var x1 = 0.5 - dirx;
           var y1 = 0.5 - diry;
           var x2 = 0.5 + dirx;
           var y2 = 0.5 + diry;
-          
+
           elem.setAttribute("x1", x1);
           elem.setAttribute("y1", y1);
           elem.setAttribute("x2", x2);
@@ -6131,7 +6139,7 @@ pv.SvgScene.removeFillStyleDefinitions = function(scenes) {
 //          elem.setAttribute("cy", fill.cy);
 //          elem.setAttribute("r",  fill.r );
         }
-        
+
         var stops = fill.stops;
         for (var i = 0, S = stops.length; i < S ; i++) {
           var stop = stops[i];
@@ -6738,9 +6746,9 @@ pv.SvgScene.bar = function(scenes) {
 };
 pv.SvgScene.dot = function(scenes) {
   var e = scenes.$g.firstChild;
-  
+
   this.removeFillStyleDefinitions(scenes);
-  
+
   for (var i = 0; i < scenes.length; i++) {
     var s = scenes[i];
 
@@ -6956,7 +6964,7 @@ pv.SvgScene.line = function(scenes) {
   var e = scenes.$g.firstChild;
 
   this.removeFillStyleDefinitions(scenes);
-  
+
   if (scenes.length < 2) return e;
   var s = scenes[0];
 
@@ -7050,7 +7058,7 @@ pv.SvgScene.lineSegment = function(scenes) {
         "stroke-width": stroke.opacity ? s1.lineWidth / this.scale : null,
         "stroke-linejoin": s1.lineJoin
       });
-    
+
     if(s1.svg) this.setAttributes(e, s1.svg);
     if(s1.css) this.setStyle(e, s1.css);
 
@@ -7084,46 +7092,46 @@ pv.SvgScene.lineIntersect = function(o1, d1, o2, d2) {
   return o1.plus(d1.times(o2.minus(o1).dot(d2.perp()) / d1.dot(d2.perp())));
 };
 
-/* 
+/*
   MITER / BEVEL JOIN calculation
 
   Normal line p1->p2 bounding box points  (a-b-c-d)
 
-                    ^ w12 
+                    ^ w12
   a-----------------|--------------b       ^
   |                 |              |       |
   p1           <----+p12           p2      | w1
   |                                |       |
   d--------------------------------c       v
-  
+
   Points are added in the following order:
   d -> a -> b -> c
-  
+
   Depending on the position of p0 in relation to the segment p1-p2,
-  'a' may be the outer corner and 'd' the inner corner, 
+  'a' may be the outer corner and 'd' the inner corner,
   or the opposite:
-  
+
   Ex1:
        outer side
-       
+
          p1 ---- p2
-       /   
+       /
      p0    inner side
-     
+
      a is outer, d is inner
-     
+
   Ex2:
-      
+
      p0    inner side
-       \
+        x
          p1 ---- p2
-         
+
        outer side
-       
+
      a is inner, d is outer
-     
+
   =====================
-  
+
     ^ v1
      \
       am
@@ -7138,16 +7146,16 @@ pv.SvgScene.lineIntersect = function(o1, d1, o2, d2) {
                 v1
 
 
-  NOTE: 
+  NOTE:
   As yy points down, and because of the way Vector.perp() is written,
   perp() corresponds to rotating 90º clockwise.
-  
+
   -----
-  
+
   The miter (ratio) limit is
   the limit on the ratio of the miter length to the line width.
-  
-  The miter length is the distance between the 
+
+  The miter length is the distance between the
   outer corner and the inner corner of the miter.
 */
 pv.strokeMiterLimit = 4;
@@ -7155,30 +7163,30 @@ pv.strokeMiterLimit = 4;
 /** @private Returns the miter join path for the specified points. */
 pv.SvgScene.pathJoin = function(s0, s1, s2, s3) {
   /*
-   * P1-P2 is the current line segment. 
-   * V is a vector that is perpendicular to the line segment, and has length lineWidth / 2. 
-   * ABCD forms the initial bounding box of the line segment 
+   * P1-P2 is the current line segment.
+   * V is a vector that is perpendicular to the line segment, and has length lineWidth / 2.
+   * ABCD forms the initial bounding box of the line segment
    * (i.e., the line segment if we were to do no joins).
    */
     var pts = [];
     var miterLimit, miterRatio, miterLength;
-    
+
     var w1 = s1.lineWidth / this.scale;
     var p1 = pv.vector(s1.left, s1.top);
     var p2 = pv.vector(s2.left, s2.top);
-    
+
     var p21 = p2.minus(p1);
     var v21 = p21.perp().norm();
     var w21 = v21.times(w1 / 2);
-    
+
     var a = p1.plus (w21);
     var d = p1.minus(w21);
-    
+
     var b = p2.plus (w21);
     var c = p2.minus(w21);
-    
+
     // --------------------
-    
+
     if(!s0 || !s0.visible){
         // Starting point
         pts.push(d, a);
@@ -7186,15 +7194,15 @@ pv.SvgScene.pathJoin = function(s0, s1, s2, s3) {
         var p0  = pv.vector(s0.left, s0.top);
         var p10 = p1.minus(p0);
         var v10 = p10.perp().norm(); // may point inwards or outwards
-        
+
         // v1 points from p1 to the inner or outer corner.
         var v1 = v10.plus(v21).norm();
-        
+
         // Miter Join
         // One is the outer corner, the other is the inner corner
         var am = this.lineIntersect(p1, v1, a, p21);
         var dm = this.lineIntersect(p1, v1, d, p21);
-        
+
         // Check Miter Limit
         // The line width is taken as the average of the widths
         // of the p0-p1 segment and that of the p1-p2 segment.
@@ -7211,7 +7219,7 @@ pv.SvgScene.pathJoin = function(s0, s1, s2, s3) {
             // v1Outer is parallel to v1, but always points outwards
             var p12 = p21.times(-1);
             var v1Outer = p10.norm().plus(p12.norm()).norm();
-            
+
             // The bevel intermediate point
             // Place it along v1Outer, at a distance w10avg/2 from p1.
             // If it were a circumference, it would have that radius.
@@ -7227,9 +7235,9 @@ pv.SvgScene.pathJoin = function(s0, s1, s2, s3) {
             }
         }
     }
-    
+
     // -------------------
-    
+
     if(!s3 || !s3.visible){
         // Starting point
         pts.push(b, c);
@@ -7238,11 +7246,11 @@ pv.SvgScene.pathJoin = function(s0, s1, s2, s3) {
         var p32 = p3.minus(p2);
         var v32 = p32.perp().norm();
         var v2  = v32.plus(v21).norm();
-        
+
         // Miter Join
         var bm = this.lineIntersect(p2, v2, b, p21);
         var cm = this.lineIntersect(p2, v2, c, p21);
-        
+
         miterLength = bm.minus(cm).length();
         var w3 = s3.lineWidth / this.scale;
         var w31avg = (w3 + w1) / 2;
@@ -7265,10 +7273,10 @@ pv.SvgScene.pathJoin = function(s0, s1, s2, s3) {
             }
         }
     }
-    
+
     // Render pts to svg path
     var pt = pts.shift();
-    return "M" + pt.x + "," + pt.y + 
+    return "M" + pt.x + "," + pt.y +
            "L" + pts.map(function(pt2){ return pt2.x + "," + pt2.y; })
                   .join(" ");
 };
@@ -7493,9 +7501,10 @@ pv.SvgScene.rule = function(scenes) {
         "y2": s.top + s.height,
         "stroke": stroke.color,
         "stroke-opacity": stroke.opacity,
-        "stroke-width": s.lineWidth / this.scale
+        "stroke-width": s.lineWidth / this.scale,
+        "stroke-dasharray": s.strokeDasharray || 'none'
       });
-    
+
     if(s.svg) this.setAttributes(e, s.svg);
     if(s.css) this.setStyle(e, s.css);
 
@@ -7746,28 +7755,28 @@ pv.Mark.prototype.property = function(name, cast) {
  */
 pv.Mark.prototype.propertyMethod = function(name, def, cast) {
   if (!cast) cast = pv.Mark.cast[name];
-  
+
   this[name] = function(v) {
       /* When arguments are specified, set the property/def value. */
-      
+
       /* DEF */
       if (def && this.scene) {
         var defs = this.scene.defs;
-        
+
         if (arguments.length) {
           defs[name] = {
             id:    (v == null) ? 0 : pv.id(),
             value: ((v != null) && cast) ? cast(v) : v
           };
-          
+
           return this;
         }
-        
+
         return defs[name] ? defs[name].value : null;
       }
-      
+
       /* PROP */
-      
+
       if (arguments.length) {
         /* bit 0: 0 = value, 1 = function
          * bit 1: 0 = def,   1 = prop
@@ -7776,7 +7785,7 @@ pv.Mark.prototype.propertyMethod = function(name, def, cast) {
          * 01 - 1 - def  - function
          * 10 - 2 - prop - value
          * 11 - 3 - prop - function
-         * 
+         *
          * x << 1 <=> floor(x) * 2
          */
         var type = !def << 1 | (typeof v === "function");
@@ -7792,9 +7801,9 @@ pv.Mark.prototype.propertyMethod = function(name, def, cast) {
         } else {
             vf = v;
         }
-        
+
         this.propertyValue(name, vf, type);
-        
+
         return this;
       }
 
@@ -7806,19 +7815,19 @@ pv.Mark.prototype.propertyMethod = function(name, def, cast) {
 pv.Mark.prototype.propertyValue = function(name, v, type) {
   var properties = this.$properties;
   var p = {
-      name:  name, 
-      id:    pv.id(), 
+      name:  name,
+      id:    pv.id(),
       value: v,
       type:  type
   };
-  
+
   for (var i = 0; i < properties.length; i++) {
     if (properties[i].name === name) {
       properties.splice(i, 1);
       break;
     }
   }
-  
+
   properties.push(p);
   return p;
 };
@@ -8459,51 +8468,51 @@ pv.Mark.stack = [];
  * do not need to be queried during build.
  */
 pv.Mark.prototype.bind = function() {
-  var seen = {}, 
+  var seen = {},
       data,
-      
+
       /* Required props (no defs) */
-      required = [],    
-      
-      /* 
+      required = [],
+
+      /*
        * Optional props/defs by type
-       * 0 - def/value, 
-       * 1 - def/fun, 
-       * 2 - prop/value, 
-       * 3 - prop/fun 
+       * 0 - def/value,
+       * 1 - def/fun,
+       * 2 - prop/value,
+       * 3 - prop/fun
        */
-      types = [[], [], [], []], 
-      
+      types = [[], [], [], []],
+
       // DATUM - an object counterpart for each value of data.
       // Ensure that required properties are evaluated in
       // the order: id, datum, visible
-      // The reason is that the visible property function should 
+      // The reason is that the visible property function should
       // have access to id and datum to decide.
       requiredPositions = {id: 0, datum: 1, visible: 3};
-  
+
   /*
    * **Evaluation** order (not precedence order for choosing props/defs)
    * 0) DEF and PROP _values_ are always already "evaluated".
    *    * Defined PROPs for which a value/fun was not specified
    *      get the value null.
-   * 
+   *
    * 1) DEF _functions_
    *    * once per parent instance
    *    * with parent instance's stack
-   *    
+   *
    *    1.1) Defaulted
    *        * from farthest proto mark to closest
    *            * on each level the first defined is the first evaluated
-   *    
+   *
    *    1.2) Explicit
    *        * idem
-   *    
+   *
    * 2) Data PROP _value_ or _function_
    *    * once per all child instances
    *    * with parent instance's stack
-   * 
+   *
    * ONCE PER INSTANCE
-   * 
+   *
    * 3) Required kind PROP _functions_ (id, datum, visible)
    *    2.1) Defaulted
    *        * idem
@@ -8518,7 +8527,7 @@ pv.Mark.prototype.bind = function() {
    *
    * 4) Implied PROPs (when instance.visible=true)
    */
-  /** 
+  /**
    * Scans the proto chain for the specified mark.
    */
   function bind(mark) {
@@ -8528,7 +8537,7 @@ pv.Mark.prototype.bind = function() {
        * On each mark properties are traversed in reverse
        * so that, below, when reverse() is called
        * function props/defs recover their original defining order.
-       * 
+       *
        * M1 -> P1_0, P1_1, P1_2, P1_3
        * ^
        * |
@@ -8536,20 +8545,20 @@ pv.Mark.prototype.bind = function() {
        * ^
        * |
        * M3 -> P3_0, P3_1
-       * 
+       *
        * List     -> P3_1, P3_0, P2_1, P2_0, P1_3, P1_2, P1_1, P1_0
-       * 
+       *
        * Reversed -> P1_0, P1_1, P1_2, P1_3, P2_0, P2_1, P3_0, P3_1
        */
-      
+
       for (var i = properties.length - 1; i >= 0 ; i--) {
         var p = properties[i];
         if (!(p.name in seen)) {
           seen[p.name] = p;
-          
+
           switch (p.name) {
-            case "data": 
-              data = p; 
+            case "data":
+              data = p;
               break;
 
             // DATUM - an object counterpart for each value of data.
@@ -8559,8 +8568,8 @@ pv.Mark.prototype.bind = function() {
               required.push(p);
               break;
 
-            default: 
-              types[p.type].push(p); 
+            default:
+              types[p.type].push(p);
               break;
           }
         }
@@ -8571,7 +8580,7 @@ pv.Mark.prototype.bind = function() {
   /* Scan the proto chain for all defined properties. */
   bind(this);
   bind(this.defaults);
-  
+
   /*
    * DATUM - an object counterpart for each value of data.
    * Sort required properties.
@@ -8607,7 +8616,7 @@ pv.Mark.prototype.bind = function() {
     data:       data,
     defs:       defs,
     required:   required,
-    
+
     // NOTE: although defs are included in the optional properties
     // they are evaluated once per parent instance, before other non-def properties.
     // Yet, for each instance, the already evaluated's def values
@@ -8714,19 +8723,19 @@ pv.Mark.prototype.buildProperties = function(s, properties) {
   for (var i = 0, n = properties.length; i < n; i++) {
     var p = properties[i];
     var v = p.value; // assume case 2 (constant)
-    
+
     switch (p.type) {
       // copy already evaluated def value to each instance's scene
       case 0:
-      case 1: 
-        v = this.scene.defs[p.name].value; 
+      case 1:
+        v = this.scene.defs[p.name].value;
         break;
-          
-      case 3: 
-        v = v.apply(this, pv.Mark.stack); 
+
+      case 3:
+        v = v.apply(this, pv.Mark.stack);
         break;
     }
-    
+
     s[p.name] = v;
   }
 };
@@ -8829,7 +8838,7 @@ pv.Mark.prototype.mouse = function() {
         scrollOffset = pv.scrollOffset(n),
         x = scrollOffset[0] + pv.event.clientX * 1,
         y = scrollOffset[1] + pv.event.clientY * 1;
-    
+
       /* Compute xy-coordinates relative to the panel.
        * This is not necessary if we're using svgweb, as svgweb gives us
        * the necessary relative co-ordinates anyway (well, it seems to
@@ -8890,9 +8899,9 @@ pv.Mark.prototype.mouse = function() {
  * interactive visualization, such as selection.
  *
  * <p>TODO In the current implementation, event handlers are not inherited from
- * prototype marks. They must be defined explicitly on each interactive mark. 
+ * prototype marks. They must be defined explicitly on each interactive mark.
  * More than one event handler for a given event type <i>can</i> be defined.
- * The return values of each handler, if any and are marks, 
+ * The return values of each handler, if any and are marks,
  * are rendered at the end of every handler having been called.
  *
  * @see <a href="http://www.w3.org/TR/SVGTiny12/interact.html#SVGEvents">SVG events</a>
@@ -8902,16 +8911,16 @@ pv.Mark.prototype.mouse = function() {
  */
 pv.Mark.prototype.event = function(type, handler) {
   handler = pv.functor(handler);
-  
+
   var handlers = this.$handlers[type];
   if(!handlers) {
-      handlers = handler; 
+      handlers = handler;
   } else if(handlers instanceof Array) {
       handlers.push(handler);
   } else {
       handlers = [handlers, handler];
   }
-  
+
   this.$handlers[type] = handlers;
   return this;
 };
@@ -8998,14 +9007,14 @@ pv.Mark.prototype.context = function(scene, index, f) {
 
 /** @private Execute the event listener, then re-render. */
 pv.Mark.dispatch = function(type, scene, index, event) {
-  var m = scene.mark, 
-      p = scene.parent, 
+  var m = scene.mark,
+      p = scene.parent,
       l = m.$handlers[type];
-  
+
   if (!l) {
       return p && pv.Mark.dispatch(type, p, scene.parentIndex, event);
   }
-  
+
   m.context(scene, index, function() {
     var stack = pv.Mark.stack.concat(event);
     if(l instanceof Array) {
@@ -9016,7 +9025,7 @@ pv.Mark.dispatch = function(type, scene, index, event) {
                 (ms || (ms = [])).push(mi);
             }
         });
-        
+
         if(ms) { ms.forEach(function(mi){ mi.render(); }); }
     } else {
         m = l.apply(m, stack);
@@ -9025,7 +9034,7 @@ pv.Mark.dispatch = function(type, scene, index, event) {
         }
     }
   });
-  
+
   return true;
 };
 
@@ -10096,7 +10105,8 @@ pv.Rule.prototype = pv.extend(pv.Mark)
     .property("width", Number)
     .property("height", Number)
     .property("lineWidth", Number)
-    .property("strokeStyle", pv.fillStyle);
+    .property("strokeStyle", pv.fillStyle)
+    .property("strokeDasharray", String);
 
 pv.Rule.prototype.type = "rule";
 
@@ -10145,6 +10155,7 @@ pv.Rule.prototype.defaults = new pv.Rule()
     .extend(pv.Mark.prototype.defaults)
     .lineWidth(1)
     .strokeStyle("black")
+    .strokeDasharray("")
     .antialias(false);
 
 /**
@@ -11058,7 +11069,7 @@ pv.Transition = function(mark) {
           map[mark.id] = mark;
       }
     }
-    
+
     return map;
   }
 
@@ -11068,7 +11079,7 @@ pv.Transition = function(mark) {
     if (name in interpolated) {
       var i = pv.Scale.interpolator(before[name], after[name]);
       f = function(t) {
-          before[name] = i(t); 
+          before[name] = i(t);
       };
     } else {
       f = function(t) {
@@ -11097,20 +11108,20 @@ pv.Transition = function(mark) {
 
   /** @private */
   function interpolate(list, before, after) {
-    var mark = before.mark, 
-        bi = ids(before), 
+    var mark = before.mark,
+        bi = ids(before),
         ai = ids(after);
-    
+
     for (var i = 0; i < before.length; i++) {
-      var b = before[i], 
+      var b = before[i],
           a = b.id ? ai[b.id] : after[i];
-      
+
       b.index = i;
-      
-      if (!b.visible) { 
+
+      if (!b.visible) {
           continue;
       }
-      
+
       // No after or not after.visible
       if (!(a && a.visible)) {
         var o = override(before, i, mark.$exit, after);
@@ -11122,25 +11133,25 @@ pv.Transition = function(mark) {
          * them from the scenegraph; for instances that became invisible, we
          * need to mark them invisible. See the cleanup method for details.
          */
-        b.transition = a ? 
-                2 : 
+        b.transition = a ?
+                2 :
                 (after.push(o), 1);
         a = o;
       }
       interpolateInstance(list, b, a);
     }
-    
+
     for (var i = 0; i < after.length; i++) {
-      var a = after[i], 
+      var a = after[i],
           b = a.id ? bi[a.id] : before[i];
-      
+
       if (!(b && b.visible) && a.visible) {
         var o = override(after, i, mark.$enter, before);
-        if (!b) 
+        if (!b)
             before.push(o);
-        else 
+        else
             before[b.index] = o;
-        
+
         interpolateInstance(list, o, a);
       }
     }
@@ -11166,7 +11177,7 @@ pv.Transition = function(mark) {
     for (var i = 0; i < p.length; i++) {
         seen[p[i].name] = 1;
     }
-    
+
     /* Add to p all optional properties in binds not in proto properties (p) */
     p = m.binds.optional
          .filter(function(p) { return !(p.name in seen); })
@@ -11235,30 +11246,30 @@ pv.Transition = function(mark) {
     var i = pv.Mark.prototype.index,
         before = mark.scene,
         after;
-    
+
     mark.scene = null;
     mark.bind();
     mark.build();
-    
+
     after = mark.scene;
     mark.scene = before;
-    
+
     pv.Mark.prototype.index = i;
 
-    var start = Date.now(), 
+    var start = Date.now(),
         list = {};
-    
+
     interpolate(list, before, after);
-    
+
     timer = setInterval(function() {
       var t = Math.max(0, Math.min(1, (Date.now() - start) / duration)),
           e = ease(t);
-      
+
       /* Advance every property of every mark */
       for (var i = list.head ; i ; i = i.next) {
           i(e);
       }
-      
+
       if (t == 1) {
         cleanup(mark.scene);
         that.stop();
@@ -13523,11 +13534,11 @@ pv.Layout.Stack.prototype.values = function(f) {
  *
  * @class Implements a layout for banded visualizations; it is
  * mainly used for grouped bar charts.
- * 
+ *
  * @extends pv.Layout
  */
 pv.Layout.Band = function() {
-    
+
     pv.Layout.call(this);
 
     var that = this,
@@ -13557,7 +13568,7 @@ pv.Layout.Band = function() {
             return itemProps[name](this.index, this.parent.index);
         };
     }
-    
+
     /**
      * Compute the layout.
      * @private
@@ -13577,16 +13588,16 @@ pv.Layout.Band = function() {
                 bh = this.parent[horizontal ? "height" : "width"](),
                 bands = this._readData(data, values, s),
                 B = bands.length;
-            
+
             /* Band order */
             if(s.bandOrder === "reverse") {
                 bands.reverse();
             }
-            
+
             /* Layer order */
             if(s.order === "reverse") {
                 values.reverse();
-                
+
                 for (var b = 0; b < B; b++) {
                     bands[b].items.reverse();
                 }
@@ -13662,7 +13673,7 @@ pv.Layout.Band = function() {
          * Half the specified margin is discounted
          * from each of the items own height.
          * </p>
-         * 
+         *
          * <p>
          * Evaluated once per band
          * (on the corresponding band's item of the first series).
@@ -13679,7 +13690,7 @@ pv.Layout.Band = function() {
 
     var bandAccessor = this.band = {
         end: this,
-        
+
         /**
          * The band width pseudo-property;
          * determines the width of a band
@@ -13701,7 +13712,7 @@ pv.Layout.Band = function() {
          * The band x pseudo-property;
          * determines the x center position of a band
          * in a layer panel.
-         * 
+         *
          * <p>
          * Evaluated once per band
          * (on the corresponding band's item of the first series).
@@ -13773,7 +13784,7 @@ pv.Layout.Band.prototype.defaults = new pv.Layout.Band()
 
 /** @private */ pv.Layout.Band.prototype.$bx =
 /** @private */ pv.Layout.Band.prototype.$bw =
-/** @private */ pv.Layout.Band.prototype.$bDiffControl = 
+/** @private */ pv.Layout.Band.prototype.$bDiffControl =
 /** @private */ pv.Layout.Band.prototype.$iw =
 /** @private */ pv.Layout.Band.prototype.$ih =
 /** @private */ pv.Layout.Band.prototype.$ivertiMargin = pv.functor(0);
@@ -13886,7 +13897,7 @@ pv.Layout.Band.prototype._calcGrouped = function(bands, L, scene){
         for (var l = 0 ; l < L ; l++) {
             wItems += items[l].w;
         }
-        
+
         if(L === 1){
             /*
              * Horizontal ratio does not apply
@@ -13896,11 +13907,11 @@ pv.Layout.Band.prototype._calcGrouped = function(bands, L, scene){
         } else if(!(horizRatio > 0 && horizRatio <= 1)) {
             horizRatio = 1;
         }
-        
+
         if(w == null){
             /* Expand band width to contain all items plus ratio */
             w = band.w = wItems / horizRatio;
-            
+
         } else if(scene.horizontalMode === 'expand'){
             /* Scale items width to fit in band's width */
 
@@ -14003,7 +14014,7 @@ pv.Layout.Band.prototype._calcStacked = function(bands, L, bh, scene){
             vertiMargin  = band.vertiMargin > 0 ? band.vertiMargin : 0;
 
         items = band.items;
-        
+
         // diffControl
         var resultPos = this._layoutItemsOfDir(+1, invertDir, items, vertiMargin, bx, yOffset),
             resultNeg;
@@ -14029,7 +14040,7 @@ pv.Layout.Band.prototype._layoutItemsOfDir = function(dir, invertDir, items, ver
         vertiMargin2 = vertiMargin / 2,
         efItemDir = (invertDir ? -dir : dir),
         reverseLayers = invertDir;
-    
+
     for (var l = 0, L = items.length ; l < L ; l+=1) {
         var item = items[reverseLayers ? (L -l -1) : l];
 
@@ -14042,7 +14053,7 @@ pv.Layout.Band.prototype._layoutItemsOfDir = function(dir, invertDir, items, ver
                 item.y = yOffset - (h - vertiMargin2);
                 yOffset -= h;
             }
-            
+
             item.h -= vertiMargin; // may become < 0
             item.x = bx - item.w / 2;
         } else {
@@ -16924,7 +16935,7 @@ pv.Behavior.point = function(r) {
       collapse = null, // dimensions to collapse
       kx = 1, // x-dimension cost scale
       ky = 1, // y-dimension cost scale
-      pointingPanel = null, 
+      pointingPanel = null,
       r2 = arguments.length ? r * r : 900; // fuzzy radius
 
   /** @private Search for the mark closest to the mouse. */

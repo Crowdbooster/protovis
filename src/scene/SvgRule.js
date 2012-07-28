@@ -21,7 +21,7 @@ pv.SvgScene.rule = function(scenes) {
         "stroke-width": s.lineWidth / this.scale,
         "stroke-dasharray": s.strokeDasharray || 'none'
       });
-    
+
     if(s.svg) this.setAttributes(e, s.svg);
     if(s.css) this.setStyle(e, s.css);
 

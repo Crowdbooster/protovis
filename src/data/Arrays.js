@@ -25,7 +25,7 @@ pv.repeat = function(array, n) {
 /**
  * Creates an array of the specified length,
  * and, optionally, initializes it with the specified default value.
- * 
+ *
  * @param {number} [len] the length of the array; defaults to 0.
  * @param {number} [dv] the default value with which to initialize each position; defaults to undefined.
  * @returns {array} an array as specified.
@@ -37,7 +37,7 @@ pv.array = function(len, dv){
             a[i] = dv;
         }
     }
-    
+
     return a;
 };
 

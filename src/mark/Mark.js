@@ -160,28 +160,28 @@ pv.Mark.prototype.property = function(name, cast) {
  */
 pv.Mark.prototype.propertyMethod = function(name, def, cast) {
   if (!cast) cast = pv.Mark.cast[name];
-  
+
   this[name] = function(v) {
       /* When arguments are specified, set the property/def value. */
-      
+
       /* DEF */
       if (def && this.scene) {
         var defs = this.scene.defs;
-        
+
         if (arguments.length) {
           defs[name] = {
             id:    (v == null) ? 0 : pv.id(),
             value: ((v != null) && cast) ? cast(v) : v
           };
-          
+
           return this;
         }
-        
+
         return defs[name] ? defs[name].value : null;
       }
-      
+
       /* PROP */
-      
+
       if (arguments.length) {
         /* bit 0: 0 = value, 1 = function
          * bit 1: 0 = def,   1 = prop
@@ -190,7 +190,7 @@ pv.Mark.prototype.propertyMethod = function(name, def, cast) {
          * 01 - 1 - def  - function
          * 10 - 2 - prop - value
          * 11 - 3 - prop - function
-         * 
+         *
          * x << 1 <=> floor(x) * 2
          */
         var type = !def << 1 | (typeof v === "function");
@@ -206,9 +206,9 @@ pv.Mark.prototype.propertyMethod = function(name, def, cast) {
         } else {
             vf = v;
         }
-        
+
         this.propertyValue(name, vf, type);
-        
+
         return this;
       }
 
@@ -220,19 +220,19 @@ pv.Mark.prototype.propertyMethod = function(name, def, cast) {
 pv.Mark.prototype.propertyValue = function(name, v, type) {
   var properties = this.$properties;
   var p = {
-      name:  name, 
-      id:    pv.id(), 
+      name:  name,
+      id:    pv.id(),
       value: v,
       type:  type
   };
-  
+
   for (var i = 0; i < properties.length; i++) {
     if (properties[i].name === name) {
       properties.splice(i, 1);
       break;
     }
   }
-  
+
   properties.push(p);
   return p;
 };
@@ -873,51 +873,51 @@ pv.Mark.stack = [];
  * do not need to be queried during build.
  */
 pv.Mark.prototype.bind = function() {
-  var seen = {}, 
+  var seen = {},
       data,
-      
+
       /* Required props (no defs) */
-      required = [],    
-      
-      /* 
+      required = [],
+
+      /*
        * Optional props/defs by type
-       * 0 - def/value, 
-       * 1 - def/fun, 
-       * 2 - prop/value, 
-       * 3 - prop/fun 
+       * 0 - def/value,
+       * 1 - def/fun,
+       * 2 - prop/value,
+       * 3 - prop/fun
        */
-      types = [[], [], [], []], 
-      
+      types = [[], [], [], []],
+
       // DATUM - an object counterpart for each value of data.
       // Ensure that required properties are evaluated in
       // the order: id, datum, visible
-      // The reason is that the visible property function should 
+      // The reason is that the visible property function should
       // have access to id and datum to decide.
       requiredPositions = {id: 0, datum: 1, visible: 3};
-  
+
   /*
    * **Evaluation** order (not precedence order for choosing props/defs)
    * 0) DEF and PROP _values_ are always already "evaluated".
    *    * Defined PROPs for which a value/fun was not specified
    *      get the value null.
-   * 
+   *
    * 1) DEF _functions_
    *    * once per parent instance
    *    * with parent instance's stack
-   *    
+   *
    *    1.1) Defaulted
    *        * from farthest proto mark to closest
    *            * on each level the first defined is the first evaluated
-   *    
+   *
    *    1.2) Explicit
    *        * idem
-   *    
+   *
    * 2) Data PROP _value_ or _function_
    *    * once per all child instances
    *    * with parent instance's stack
-   * 
+   *
    * ONCE PER INSTANCE
-   * 
+   *
    * 3) Required kind PROP _functions_ (id, datum, visible)
    *    2.1) Defaulted
    *        * idem
@@ -932,7 +932,7 @@ pv.Mark.prototype.bind = function() {
    *
    * 4) Implied PROPs (when instance.visible=true)
    */
-  /** 
+  /**
    * Scans the proto chain for the specified mark.
    */
   function bind(mark) {
@@ -942,7 +942,7 @@ pv.Mark.prototype.bind = function() {
        * On each mark properties are traversed in reverse
        * so that, below, when reverse() is called
        * function props/defs recover their original defining order.
-       * 
+       *
        * M1 -> P1_0, P1_1, P1_2, P1_3
        * ^
        * |
@@ -950,20 +950,20 @@ pv.Mark.prototype.bind = function() {
        * ^
        * |
        * M3 -> P3_0, P3_1
-       * 
+       *
        * List     -> P3_1, P3_0, P2_1, P2_0, P1_3, P1_2, P1_1, P1_0
-       * 
+       *
        * Reversed -> P1_0, P1_1, P1_2, P1_3, P2_0, P2_1, P3_0, P3_1
        */
-      
+
       for (var i = properties.length - 1; i >= 0 ; i--) {
         var p = properties[i];
         if (!(p.name in seen)) {
           seen[p.name] = p;
-          
+
           switch (p.name) {
-            case "data": 
-              data = p; 
+            case "data":
+              data = p;
               break;
 
             // DATUM - an object counterpart for each value of data.
@@ -973,8 +973,8 @@ pv.Mark.prototype.bind = function() {
               required.push(p);
               break;
 
-            default: 
-              types[p.type].push(p); 
+            default:
+              types[p.type].push(p);
               break;
           }
         }
@@ -985,7 +985,7 @@ pv.Mark.prototype.bind = function() {
   /* Scan the proto chain for all defined properties. */
   bind(this);
   bind(this.defaults);
-  
+
   /*
    * DATUM - an object counterpart for each value of data.
    * Sort required properties.
@@ -1021,7 +1021,7 @@ pv.Mark.prototype.bind = function() {
     data:       data,
     defs:       defs,
     required:   required,
-    
+
     // NOTE: although defs are included in the optional properties
     // they are evaluated once per parent instance, before other non-def properties.
     // Yet, for each instance, the already evaluated's def values
@@ -1128,19 +1128,19 @@ pv.Mark.prototype.buildProperties = function(s, properties) {
   for (var i = 0, n = properties.length; i < n; i++) {
     var p = properties[i];
     var v = p.value; // assume case 2 (constant)
-    
+
     switch (p.type) {
       // copy already evaluated def value to each instance's scene
       case 0:
-      case 1: 
-        v = this.scene.defs[p.name].value; 
+      case 1:
+        v = this.scene.defs[p.name].value;
         break;
-          
-      case 3: 
-        v = v.apply(this, pv.Mark.stack); 
+
+      case 3:
+        v = v.apply(this, pv.Mark.stack);
         break;
     }
-    
+
     s[p.name] = v;
   }
 };
@@ -1243,7 +1243,7 @@ pv.Mark.prototype.mouse = function() {
         scrollOffset = pv.scrollOffset(n),
         x = scrollOffset[0] + pv.event.clientX * 1,
         y = scrollOffset[1] + pv.event.clientY * 1;
-    
+
       /* Compute xy-coordinates relative to the panel.
        * This is not necessary if we're using svgweb, as svgweb gives us
        * the necessary relative co-ordinates anyway (well, it seems to
@@ -1304,9 +1304,9 @@ pv.Mark.prototype.mouse = function() {
  * interactive visualization, such as selection.
  *
  * <p>TODO In the current implementation, event handlers are not inherited from
- * prototype marks. They must be defined explicitly on each interactive mark. 
+ * prototype marks. They must be defined explicitly on each interactive mark.
  * More than one event handler for a given event type <i>can</i> be defined.
- * The return values of each handler, if any and are marks, 
+ * The return values of each handler, if any and are marks,
  * are rendered at the end of every handler having been called.
  *
  * @see <a href="http://www.w3.org/TR/SVGTiny12/interact.html#SVGEvents">SVG events</a>
@@ -1316,16 +1316,16 @@ pv.Mark.prototype.mouse = function() {
  */
 pv.Mark.prototype.event = function(type, handler) {
   handler = pv.functor(handler);
-  
+
   var handlers = this.$handlers[type];
   if(!handlers) {
-      handlers = handler; 
+      handlers = handler;
   } else if(handlers instanceof Array) {
       handlers.push(handler);
   } else {
       handlers = [handlers, handler];
   }
-  
+
   this.$handlers[type] = handlers;
   return this;
 };
@@ -1412,14 +1412,14 @@ pv.Mark.prototype.context = function(scene, index, f) {
 
 /** @private Execute the event listener, then re-render. */
 pv.Mark.dispatch = function(type, scene, index, event) {
-  var m = scene.mark, 
-      p = scene.parent, 
+  var m = scene.mark,
+      p = scene.parent,
       l = m.$handlers[type];
-  
+
   if (!l) {
       return p && pv.Mark.dispatch(type, p, scene.parentIndex, event);
   }
-  
+
   m.context(scene, index, function() {
     var stack = pv.Mark.stack.concat(event);
     if(l instanceof Array) {
@@ -1430,7 +1430,7 @@ pv.Mark.dispatch = function(type, scene, index, event) {
                 (ms || (ms = [])).push(mi);
             }
         });
-        
+
         if(ms) { ms.forEach(function(mi){ mi.render(); }); }
     } else {
         m = l.apply(m, stack);
@@ -1439,7 +1439,7 @@ pv.Mark.dispatch = function(type, scene, index, event) {
         }
     }
   });
-  
+
   return true;
 };
 

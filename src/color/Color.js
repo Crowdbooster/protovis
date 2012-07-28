@@ -120,11 +120,11 @@ pv.Color = function(color, opacity) {
 
 /**
  * Returns an equivalent color in the HSL color space.
- * 
+ *
  * @returns {pv.Color.Hsl} an HSL color.
  */
-pv.Color.prototype.hsl = function() { 
-    return this.rgb().hsl(); 
+pv.Color.prototype.hsl = function() {
+    return this.rgb().hsl();
 };
 
 /**
@@ -316,21 +316,21 @@ pv.Color.Rgb.prototype.darker = function(k) {
 };
 
 /**
- * Converts an RGB color value to HSL. 
+ * Converts an RGB color value to HSL.
  * Conversion formula adapted from http://en.wikipedia.org/wiki/HSL_color_space.
- * 
+ *
  * (Adapted from http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript)
- * 
+ *
  * @returns pv.Color.Hsl
  */
 pv.Color.Rgb.prototype.hsl = function(){
     var r = this.r / 255;
     var g = this.g / 255;
     var b = this.b / 255;
-    
-    var max = Math.max(r, g, b); 
+
+    var max = Math.max(r, g, b);
     var min = Math.min(r, g, b);
-    
+
     var l = (max + min) / 2;
     var h, s;
 
@@ -344,7 +344,7 @@ pv.Color.Rgb.prototype.hsl = function(){
             case g: h = (b - r) / d + 2; break;
             case b: h = (r - g) / d + 4; break;
         }
-        
+
         h /= 6;
     }
 

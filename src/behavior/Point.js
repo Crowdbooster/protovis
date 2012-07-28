@@ -59,7 +59,7 @@ pv.Behavior.point = function(r) {
       collapse = null, // dimensions to collapse
       kx = 1, // x-dimension cost scale
       ky = 1, // y-dimension cost scale
-      pointingPanel = null, 
+      pointingPanel = null,
       r2 = arguments.length ? r * r : 900; // fuzzy radius
 
   /** @private Search for the mark closest to the mouse. */

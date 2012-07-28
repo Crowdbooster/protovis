@@ -256,7 +256,7 @@ pv.SvgScene.removeFillStyleDefinitions = function(scenes) {
   pv.SvgScene.addFillStyleDefinition = function(scenes, fill) {
     var isLinear = fill.type === 'lineargradient';
     if (isLinear || fill.type === 'radialgradient') {
-      
+
       var g = scenes.$g;
       var results = g.getElementsByTagName('defs');
       var defs;
@@ -265,21 +265,21 @@ pv.SvgScene.removeFillStyleDefinitions = function(scenes) {
       } else {
         defs = g.appendChild(this.create("defs"));
       }
-      
+
       var elem;
       var className = '__pv_gradient' + fill.id;
-      
+
       // TODO: check this check exists method. It looks wrong...
       //1107[PVALE] - No ideia what this was supposed to do, but the method querySelector does not seem to exist
       results = undefined; //defs.querySelector('.' + className);
       if (!results) {
         var instId = '__pv_gradient' + fill.id + '_inst_' + (++gradient_definition_id);
-        
+
         elem = defs.appendChild(this.create(isLinear ? "linearGradient" : "radialGradient"));
         elem.setAttribute("id",    instId);
         elem.setAttribute("class", className);
 //       elem.setAttribute("gradientUnits","userSpaceOnUse");
-        
+
         if(isLinear){
           // x1,y1 -> x2,y2 form the gradient vector
           // See http://www.w3.org/TR/css3-images/#gradients example 11 on calculating the gradient line
@@ -287,18 +287,18 @@ pv.SvgScene.removeFillStyleDefinitions = function(scenes) {
           // angle = (gradAngle - 90) - 45 = angle - 135
           var svgAngle  = fill.angle - Math.PI/2;
           var diagAngle = Math.abs(svgAngle % (Math.PI/2)) - Math.PI/4;
-          
+
           // Radius from the center of the normalized bounding box
           var radius = Math.abs((Math.SQRT2/2) * Math.cos(diagAngle));
-          
+
           var dirx = radius * Math.cos(svgAngle);
           var diry = radius * Math.sin(svgAngle);
-          
+
           var x1 = 0.5 - dirx;
           var y1 = 0.5 - diry;
           var x2 = 0.5 + dirx;
           var y2 = 0.5 + diry;
-          
+
           elem.setAttribute("x1", x1);
           elem.setAttribute("y1", y1);
           elem.setAttribute("x2", x2);
@@ -309,7 +309,7 @@ pv.SvgScene.removeFillStyleDefinitions = function(scenes) {
 //          elem.setAttribute("cy", fill.cy);
 //          elem.setAttribute("r",  fill.r );
         }
-        
+
         var stops = fill.stops;
         for (var i = 0, S = stops.length; i < S ; i++) {
           var stop = stops[i];

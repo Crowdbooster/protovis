@@ -1,6 +1,6 @@
 (function() {
     /* Adapted from https://gitorious.org/~brendansterne/protovis/brendansternes-protovis */
-    
+
     /**
      * TBD Returns the {@link pv.FillStyle} for the specified format string.
      * For example:
@@ -10,7 +10,7 @@
      * <li>linear-gradient(to top, white, red 40%, black 100%)</li>
      * <li>linear-gradient(90deg, white, red 40%, black 100%)</li>
      * </ul>
-     * 
+     *
      * @param {string} format the gradient specification string.
      * @returns {pv.FillStyle} the corresponding <tt>FillStyle</tt>.
      * @see <a href="http://www.w3.org/TR/css3-images/#gradients">CSS3 Gradients</a>
@@ -52,23 +52,23 @@
 
     /*
      * linear-gradient(<text>) <text> := [<angle-spec>, ]<color-stop>, ...
-     * 
-     * <angle-spec> := <to-side-or-corner> | <angle-number> 
+     *
+     * <angle-spec> := <to-side-or-corner> | <angle-number>
      *   -> default <angle-spec> is "to bottom"
-     *    
-     * <to-side-or-corner> := to (top | bottom) || (left | right) 
-     *   top    -> 0deg 
-     *   right  -> 90deg 
-     *   bottom -> 180deg 
+     *
+     * <to-side-or-corner> := to (top | bottom) || (left | right)
+     *   top    -> 0deg
+     *   right  -> 90deg
+     *   bottom -> 180deg
      *   left   -> 270deg
-     * 
-     * <angle-number> := <number>[deg] 
-     * 
-     * examples: 
+     *
+     * <angle-number> := <number>[deg]
+     *
+     * examples:
      * "bottom, white to top, black"
-     *    linear-gradient(to top, white, black) 
-     *   
-     * "bottom-right, white to top-left, black" 
+     *    linear-gradient(to top, white, black)
+     *
+     * "bottom-right, white to top-left, black"
      *    linear-gradient(to top left, white, black)
      */
     function parseLinearGradient(text) {
@@ -99,9 +99,9 @@
                         keyAngle = m[6] + ' ' + keyAngle;
                     }
                 }
-                
+
                 angle = pv.radians(keyAnglesDeg[keyAngle]);
-                
+
                 terms.shift();
             }
         } else {
@@ -117,7 +117,7 @@
                 terms.shift();
             }
         }
-                
+
         var stops = parseStops(terms);
         switch (stops.length) {
             case 0: return null;
@@ -128,21 +128,21 @@
     }
 
     /*
-     * radial-gradient(<text>) 
-     * 
-     * <text> := [<focal-point-spec>, ]<color-stop>, ... 
-     * 
-     * not implemented: 
+     * radial-gradient(<text>)
+     *
+     * <text> := [<focal-point-spec>, ]<color-stop>, ...
+     *
+     * not implemented:
      * <focal-point-spec> := at <point-or-side-or-corner> |
-     *                       at <percentage-position> | 
+     *                       at <percentage-position> |
      *                       at <percentage-position> <percentage-position>
-     * 
-     * <point-or-side-or-corner> := center | top left | top right | bottom left | bottom right | ... 
+     *
+     * <point-or-side-or-corner> := center | top left | top right | bottomleft | bottom right | ...
      *   -> default <point-or-side-or-corner> = "center"
-     * 
-     * <percentage-position> := <number>% 
-     * 
-     * examples: 
+     *
+     * <percentage-position> := <number>%
+     *
+     * examples:
      *   radial-gradient(at center, white, black)
      */
     function parseRadialGradient(text) {
@@ -150,7 +150,7 @@
         if (!terms.length) {
             return null;
         }
-        
+
         var stops = parseStops(terms);
         switch (stops.length) {
             case 0: return null;
@@ -163,18 +163,18 @@
     function parseText(text){
         var colorFuns  = {};
         var colorFunId = 0;
-        
+
         text = text.replace(/\b\w+?\(.*?\)/g, function($0){
-            var id = '__color' + (colorFunId++); 
+            var id = '__color' + (colorFunId++);
             colorFuns[id] = $0;
             return id;
         });
-        
+
         var terms = text.split(/\s*,\s*/);
         if (!terms.length) {
             return null;
         }
-        
+
         // Re-insert color functions
         if(colorFunId){
             terms.forEach(function(id, index){
@@ -183,16 +183,16 @@
                 }
             });
         }
-        
+
         return terms;
     }
-    
+
     /*
-     * COLOR STOPS 
-     * <color-stop> := <color-spec> [<percentage-offset>] 
-     * 
-     * <percentage-position> := <number>% 
-     * 
+     * COLOR STOPS
+     * <color-stop> := <color-spec> [<percentage-offset>]
+     *
+     * <percentage-position> := <number>%
+     *
      * <color-spec> := rgb() | rgba() | hsl() | hsla() | white | ...
      */
     function parseStops(terms) {
@@ -225,7 +225,7 @@
                 var stop = {
                     color: pv.color(m[1])
                 };
-                
+
                 var offsetPercent = parseFloat(m[2]); // tolerates text suffixes
                 if (isNaN(offsetPercent)) {
                     if (!stops.length) {
@@ -234,9 +234,9 @@
                         offsetPercent = Math.max(maxOffsetPercent, 100);
                     }
                 }
-                
+
                 stops.push(stop);
-                
+
                 if (isNaN(offsetPercent)) {
                     pendingOffsetStops.push(stop);
                 } else {
@@ -299,34 +299,34 @@
 
         return stops;
     }
-    
+
     // -----------
-    
+
     var FillStyle = pv.FillStyle = function(type) {
         this.type = type;
     };
-    
-    /* 
+
+    /*
      * Provide {@link pv.Color} compatibility.
      */
     FillStyle.prototype = new pv.Color('none', 1);
-    
+
     FillStyle.prototype.rgb = function(){
         return pv.color(this.color).alpha(this.opacity);
     };
-    
+
     /**
      * Constructs a solid fill style. This constructor should not be invoked
      * directly; use {@link pv.fillStyle} instead.
-     * 
+     *
      * @class represents a solid fill.
-     * 
+     *
      * @extends pv.FillStyle
      */
     var Solid = pv.FillStyle.Solid = function(color, opacity) {
-        
+
         FillStyle.call(this, 'solid');
-        
+
         if(color.rgb){
             this.color   = color.color;
             this.opacity = color.opacity;
@@ -335,13 +335,13 @@
             this.opacity = opacity;
         }
     };
-    
+
     Solid.prototype = pv.extend(pv.FillStyle);
-    
+
     Solid.prototype.alpha = function(opacity){
         return new Solid(this.color, opacity);
     };
-    
+
     Solid.prototype.brighter = function(k){
         return new Solid(this.rgb().brighter(k));
     };
@@ -349,74 +349,74 @@
     Solid.prototype.darker = function(k){
         return new Solid(this.color.darker(k));
     };
-    
+
     pv.FillStyle.transparent = new Solid(pv.Color.transparent);
-    
+
     // ----------------
-    
+
     var gradient_id = 0;
 
     var Gradient = pv.FillStyle.Gradient = function(type, stops) {
         FillStyle.call(this, type);
-        
+
         this.id = ++gradient_id;
         this.stops = stops;
-        
+
         if(stops.length){
             // Default color for renderers that do not support gradients
             this.color = stops[0].color.color;
         }
     };
-    
+
     Gradient.prototype = pv.extend(pv.FillStyle);
-    
+
     Gradient.prototype.rgb = function(){
         return this.stops.length ? this.stops[0].color : undefined;
     };
-    
+
     Gradient.prototype.alpha = function(opacity){
         return this._clone(this.stops.map(function(stop){
             return {offset: stop.offset, color: stop.color.alpha(opacity)};
         }));
     };
-    
+
     Gradient.prototype.darker = function(k){
         return this._clone(this.stops.map(function(stop){
             return {offset: stop.offset, color: stop.color.darker(k)};
         }));
     };
-    
+
     Gradient.prototype.brighter = function(k){
         return this._clone(this.stops.map(function(stop){
             return {offset: stop.offset, color: stop.color.brighter(k)};
         }));
     };
-    
+
     // ----------------
-    
+
     var LinearGradient = pv.FillStyle.LinearGradient = function(angle, stops) {
         Gradient.call(this, 'lineargradient', stops);
-        
+
         this.angle = angle;
     };
 
     LinearGradient.prototype = pv.extend(Gradient);
-    
+
     LinearGradient.prototype._clone = function(stops){
         return new LinearGradient(this.angle, stops);
     };
-    
+
     // ----------------
-    
+
     var RadialGradient = pv.FillStyle.RadialGradient = function(cx, cy, stops) {
         Gradient.call(this, 'radialgradient', stops);
-        
+
         this.cx = cx;
         this.cy = cy;
     };
-    
+
     RadialGradient.prototype = pv.extend(Gradient);
-    
+
     RadialGradient.prototype._clone = function(stops){
         return new RadialGradient(this.cx, this.cy, stops);
     };

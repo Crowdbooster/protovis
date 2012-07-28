@@ -1,8 +1,8 @@
 pv.SvgScene.dot = function(scenes) {
   var e = scenes.$g.firstChild;
-  
+
   this.removeFillStyleDefinitions(scenes);
-  
+
   for (var i = 0; i < scenes.length; i++) {
     var s = scenes[i];
 
