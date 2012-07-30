@@ -1,4 +1,4 @@
-// 2f643e2caa5f7563dce1552e887f57815d39c9a9
+// ee1d65f094242b5011ae1f57e38bb8383f166e23
 /**
  * @class The built-in Array class.
  * @name Array
@@ -944,16 +944,26 @@ pv.Format.number = function() {
       decimal = ".", // default decimal separator
       group = ",", // default group separator
       np = "\u2212", // default negative prefix
-      ns = ""; // default negative suffix
+      ns = "",
+      prettyFormatBigNumbers = false; // default negative suffix
 
   /** @private */
   function format(x) {
     /* Round the fractional part, and split on decimal separator. */
     if (Infinity > maxf) x = Math.round(x * maxk) / maxk;
+    if (prettyFormatBigNumbers) {
+      x = parseInt(x, 10);
+      return x < 1000 && x ||
+            x < 1000000 && (x/1000).toFixed(1) + ' K' ||
+            x < 1000000000 && (x/1000000000).toFixed(1) + ' M' ||
+            x < 1000000000000 && (x/1000000000000).toFixed(1) + ' B';
+    }
+
     var s = String(Math.abs(x)).split(".");
 
     /* Pad, truncate and group the integral part. */
     var i = s[0];
+
     if (i.length > maxi) i = i.substring(i.length - maxi);
     if (padg && (i.length < mini)) i = new Array(mini - i.length + 1).join(padi) + i;
     if (i.length > 3) i = i.replace(/\B(?=(?:\d{3})+(?!\d))/g, group);
@@ -995,7 +1005,7 @@ pv.Format.number = function() {
     if(s.length == 1)
       s[1]="";
     s[0].replace(new RegExp("^(" + re(padi) + ")*"), "");
-    s[1].replace(new RegExp("(" + re(padf) + ")*$"), "")
+    s[1].replace(new RegExp("(" + re(padf) + ")*$"), "");
 
     /* Remove grouping and truncate the integral part. */
     var i = s[0].replace(new RegExp(re(group), "g"), "");
@@ -1127,6 +1137,21 @@ pv.Format.number = function() {
       return this;
     }
     return group;
+  };
+
+  /**
+   * Returns a pretty formatted version of the integer if it's > 1K
+   * For large numbers, 3000 --> 3K, 10000 -> 10K, 10100 -> 10.1K,
+   * 3000000 -> 3M, etc.
+   * @param {boolean} on - whether or not to use pretty formatting for big numbers
+   * @returns {pv.Format.number} <tt>this</tt> or the state
+   */
+  format.bigNumbers = function(on) {
+    if (arguments.length) {
+      prettyFormatBigNumbers = on;
+      return this;
+    }
+    return on;
   };
 
   /**
@@ -3304,7 +3329,7 @@ pv.Scale.quantitative = function() {
    * @param {boolean} [options.roundInside=true] should the ticks be ensured to be strictly inside the scale domain, or to strictly outside the scale domain.
    * @param {boolean} [options.numberExponentMin=-Inifinity] minimum value for the step exponent.
    * @param {boolean} [options.numberExponentMax=+Inifinity] maximum value for the step exponent.
-   * @param {boolean} [options.prettyFormat=true] Use abbreviations for large numbers, i.e. [3,000, ..., 8,000] => [3.0K, ..., 8.0K]
+   * @param {boolean} [options.prettyFormatBigNumbers=false] Use abbreviations for large numbers, i.e. [3,000, ..., 8,000] => [3.0K, ..., 8.0K]
    * @returns {number[]} an array input domain values to use as ticks.
    */
   scale.ticks = function(m, options) {
@@ -3477,7 +3502,7 @@ pv.Scale.quantitative = function() {
     var roundInside = pv.get(options, 'roundInside', true);
     var exponentMin = pv.get(options, 'numberExponentMin', -Infinity);
     var exponentMax = pv.get(options, 'numberExponentMax', +Infinity);
-    var prettyFormat = pv.get(options, 'prettyFormat', true);
+    var prettyFormatBigNumbers = pv.get(options, 'prettyFormatBigNumbers', false);
 
     //var step = pv.logFloor(span / m, 10);
     var exponent = Math.floor(pv.log(span / m, 10));
@@ -3509,16 +3534,14 @@ pv.Scale.quantitative = function() {
     var end   = step * Math[roundInside ? 'floor' : 'ceil' ](max / step);
 
 
-    if (prettyFormat) {
-      tickFormat = pv.Format.number().integerDigits(2);
-    } else {
-      tickFormat = pv.Format.number().fractionDigits(Math.max(0, -exponent));
-    }
-    console.log(tickFormat);
+    tickFormat = pv.Format.number().fractionDigits(Math.max(0, -exponent));
 
     var ticks = pv.range(start, end + step, step);
     if(reverse){
         ticks.reverse();
+    }
+    if (prettyFormatBigNumbers) {
+      tickFormat = pv.Format.number().bigNumbers(true);
     }
 
     ticks.roundInside = roundInside;

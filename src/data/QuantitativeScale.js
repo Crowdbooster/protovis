@@ -235,7 +235,7 @@ pv.Scale.quantitative = function() {
    * @param {boolean} [options.roundInside=true] should the ticks be ensured to be strictly inside the scale domain, or to strictly outside the scale domain.
    * @param {boolean} [options.numberExponentMin=-Inifinity] minimum value for the step exponent.
    * @param {boolean} [options.numberExponentMax=+Inifinity] maximum value for the step exponent.
-   * @param {boolean} [options.prettyFormat=true] Use abbreviations for large numbers, i.e. [3,000, ..., 8,000] => [3.0K, ..., 8.0K]
+   * @param {boolean} [options.prettyFormatBigNumbers=false] Use abbreviations for large numbers, i.e. [3,000, ..., 8,000] => [3.0K, ..., 8.0K]
    * @returns {number[]} an array input domain values to use as ticks.
    */
   scale.ticks = function(m, options) {
@@ -408,7 +408,7 @@ pv.Scale.quantitative = function() {
     var roundInside = pv.get(options, 'roundInside', true);
     var exponentMin = pv.get(options, 'numberExponentMin', -Infinity);
     var exponentMax = pv.get(options, 'numberExponentMax', +Infinity);
-    var prettyFormat = pv.get(options, 'prettyFormat', true);
+    var prettyFormatBigNumbers = pv.get(options, 'prettyFormatBigNumbers', false);
 
     //var step = pv.logFloor(span / m, 10);
     var exponent = Math.floor(pv.log(span / m, 10));
@@ -440,16 +440,14 @@ pv.Scale.quantitative = function() {
     var end   = step * Math[roundInside ? 'floor' : 'ceil' ](max / step);
 
 
-    if (prettyFormat) {
-      tickFormat = pv.Format.number().integerDigits(2);
-    } else {
-      tickFormat = pv.Format.number().fractionDigits(Math.max(0, -exponent));
-    }
-    console.log(tickFormat);
+    tickFormat = pv.Format.number().fractionDigits(Math.max(0, -exponent));
 
     var ticks = pv.range(start, end + step, step);
     if(reverse){
         ticks.reverse();
+    }
+    if (prettyFormatBigNumbers) {
+      tickFormat = pv.Format.number().bigNumbers(true);
     }
 
     ticks.roundInside = roundInside;

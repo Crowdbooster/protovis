@@ -22,16 +22,26 @@ pv.Format.number = function() {
       decimal = ".", // default decimal separator
       group = ",", // default group separator
       np = "\u2212", // default negative prefix
-      ns = ""; // default negative suffix
+      ns = "",
+      prettyFormatBigNumbers = false; // default negative suffix
 
   /** @private */
   function format(x) {
     /* Round the fractional part, and split on decimal separator. */
     if (Infinity > maxf) x = Math.round(x * maxk) / maxk;
+    if (prettyFormatBigNumbers) {
+      x = parseInt(x, 10);
+      return x < 1000 && x ||
+            x < 1000000 && (x/1000).toFixed(1) + ' K' ||
+            x < 1000000000 && (x/1000000000).toFixed(1) + ' M' ||
+            x < 1000000000000 && (x/1000000000000).toFixed(1) + ' B';
+    }
+
     var s = String(Math.abs(x)).split(".");
 
     /* Pad, truncate and group the integral part. */
     var i = s[0];
+
     if (i.length > maxi) i = i.substring(i.length - maxi);
     if (padg && (i.length < mini)) i = new Array(mini - i.length + 1).join(padi) + i;
     if (i.length > 3) i = i.replace(/\B(?=(?:\d{3})+(?!\d))/g, group);
@@ -73,7 +83,7 @@ pv.Format.number = function() {
     if(s.length == 1)
       s[1]="";
     s[0].replace(new RegExp("^(" + re(padi) + ")*"), "");
-    s[1].replace(new RegExp("(" + re(padf) + ")*$"), "")
+    s[1].replace(new RegExp("(" + re(padf) + ")*$"), "");
 
     /* Remove grouping and truncate the integral part. */
     var i = s[0].replace(new RegExp(re(group), "g"), "");
@@ -205,6 +215,21 @@ pv.Format.number = function() {
       return this;
     }
     return group;
+  };
+
+  /**
+   * Returns a pretty formatted version of the integer if it's > 1K
+   * For large numbers, 3000 --> 3K, 10000 -> 10K, 10100 -> 10.1K,
+   * 3000000 -> 3M, etc.
+   * @param {boolean} on - whether or not to use pretty formatting for big numbers
+   * @returns {pv.Format.number} <tt>this</tt> or the state
+   */
+  format.bigNumbers = function(on) {
+    if (arguments.length) {
+      prettyFormatBigNumbers = on;
+      return this;
+    }
+    return on;
   };
 
   /**
