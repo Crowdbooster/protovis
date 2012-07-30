@@ -1,4 +1,4 @@
-// ee1d65f094242b5011ae1f57e38bb8383f166e23
+// 460a4473bda8dd2549ad5aa30d3cb0c1b3bf3963
 /**
  * @class The built-in Array class.
  * @name Array
@@ -955,8 +955,9 @@ pv.Format.number = function() {
       x = parseInt(x, 10);
       return x < 1000 && x ||
             x < 1000000 && (x/1000).toFixed(1) + ' K' ||
-            x < 1000000000 && (x/1000000000).toFixed(1) + ' M' ||
-            x < 1000000000000 && (x/1000000000000).toFixed(1) + ' B';
+            x < 1000000000 && (x/1000000).toFixed(1) + ' M' ||
+            x < 1000000000000 && (x/1000000000).toFixed(1) + ' B' ||
+            x;
     }
 
     var s = String(Math.abs(x)).split(".");
