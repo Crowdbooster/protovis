@@ -443,8 +443,9 @@ pv.Scale.quantitative = function() {
     tickFormat = pv.Format.number().fractionDigits(Math.max(0, -exponent));
 
     var ticks = pv.range(start, end + step, step);
+    
     if(reverse){
-        ticks.reverse();
+      ticks.reverse();
     }
     if (prettyFormatBigNumbers) {
       tickFormat = pv.Format.number().bigNumbers(true);
