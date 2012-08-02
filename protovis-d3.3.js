@@ -1,4 +1,4 @@
-// 460a4473bda8dd2549ad5aa30d3cb0c1b3bf3963
+// 5f4194c4040e2e8d6c1ec7e9fd230f4c0a52215b
 /**
  * @class The built-in Array class.
  * @name Array
@@ -3538,8 +3538,9 @@ pv.Scale.quantitative = function() {
     tickFormat = pv.Format.number().fractionDigits(Math.max(0, -exponent));
 
     var ticks = pv.range(start, end + step, step);
+
     if(reverse){
-        ticks.reverse();
+      ticks.reverse();
     }
     if (prettyFormatBigNumbers) {
       tickFormat = pv.Format.number().bigNumbers(true);
