@@ -108,7 +108,7 @@ JS_FILES = \
 	$(JS_GEO_FILES)
 
 JS_COMPILER = \
-	java -jar lib/google-compiler/compiler-20100201.jar \
+	java -jar lib/google-compiler/compiler-2012-09-18.jar \
 	--charset UTF-8 \
 	--warning_level=QUIET
 
