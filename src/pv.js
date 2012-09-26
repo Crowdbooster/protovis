@@ -29,7 +29,15 @@ pv.version = {
    * @type number
    * @constant
    */
-  minor: 3
+  minor: 3,
+
+ /**
+   * The version number revision.
+   *
+   * @type number
+   * @constant
+   */
+   revision: 1
 };
 
 /**
