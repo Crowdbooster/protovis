@@ -1,4 +1,4 @@
-// 3fe45d60a727d966f0f4367aa323b3e995fab50d
+// 6e675ee0a021540bfb7c7af72f57bd9f89a9b9d7
 /**
  * @class The built-in Array class.
  * @name Array
@@ -142,7 +142,15 @@ pv.version = {
    * @type number
    * @constant
    */
-  minor: 3
+  minor: 3,
+
+ /**
+   * The version number revision.
+   *
+   * @type number
+   * @constant
+   */
+   revision: 1
 };
 
 /**
