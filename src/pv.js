@@ -37,7 +37,7 @@ pv.version = {
    * @type number
    * @constant
    */
-   revision: 1
+   revision: 2
 };
 
 /**

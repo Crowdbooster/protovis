@@ -410,6 +410,7 @@ pv.Scale.quantitative = function() {
     var exponentMin = pv.get(options, 'numberExponentMin', -Infinity);
     var exponentMax = pv.get(options, 'numberExponentMax', +Infinity);
     var prettyFormatBigNumbers = pv.get(options, 'prettyFormatBigNumbers', false);
+    var onlyPositiveTicks = pv.get(options, 'onlyPositiveTicks', false);
 
     //var step = pv.logFloor(span / m, 10);
     var exponent = Math.floor(pv.log(span / m, 10));
@@ -440,7 +441,7 @@ pv.Scale.quantitative = function() {
     var start = step * Math[roundInside ? 'ceil'  : 'floor'](min / step);
     var end   = step * Math[roundInside ? 'floor' : 'ceil' ](max / step);
 
-    if (options.onlyPositiveTicks) {
+    if (onlyPositiveTicks) {
       start = Math.max(0, start);
     }
 
