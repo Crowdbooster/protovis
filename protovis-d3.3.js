@@ -1,4 +1,4 @@
-// 6e675ee0a021540bfb7c7af72f57bd9f89a9b9d7
+// 2734ccd6ff9c3286b869396067f4eb897c85c3f1
 /**
  * @class The built-in Array class.
  * @name Array
@@ -961,10 +961,15 @@ pv.Format.number = function() {
     if (Infinity > maxf) x = Math.round(x * maxk) / maxk;
     if (prettyFormatBigNumbers) {
       x = parseInt(x, 10);
-      return x < 1000 && x ||
-            x < 1000000 && (x/1000).toFixed(1) + ' K' ||
-            x < 1000000000 && (x/1000000).toFixed(1) + ' M' ||
-            x < 1000000000000 && (x/1000000000).toFixed(1) + ' B' ||
+      return x < -1e12 && (x/1e12).toFixed(1) + ' T' ||
+            x < -1e9 && (x/1e9).toFixed(1) + ' B' ||
+            x < -1e6 && (x/1e6).toFixed(1) + ' M' ||
+            x < -1e3 && (x/1e3).toFixed(1) + 'K' ||
+            x < 1e3 && x ||
+            x < 1e6 && (x/1e3).toFixed(1) + ' K' ||
+            x < 1e9 && (x/1e6).toFixed(1) + ' M' ||
+            x < 1e12 && (x/1e9).toFixed(1) + ' B' ||
+            x < 1e15 && (x/1e12).toFixed(1) + ' T' ||
             x;
     }
 
@@ -3339,6 +3344,7 @@ pv.Scale.quantitative = function() {
    * @param {boolean} [options.numberExponentMin=-Inifinity] minimum value for the step exponent.
    * @param {boolean} [options.numberExponentMax=+Inifinity] maximum value for the step exponent.
    * @param {boolean} [options.prettyFormatBigNumbers=false] Use abbreviations for large numbers, i.e. [3,000, ..., 8,000] => [3.0K, ..., 8.0K]
+   * @param {boolean} [options.onlyPositiveTicks=false] Discard all negative ticks.
    * @returns {number[]} an array input domain values to use as ticks.
    */
   scale.ticks = function(m, options) {
@@ -3542,6 +3548,9 @@ pv.Scale.quantitative = function() {
     var start = step * Math[roundInside ? 'ceil'  : 'floor'](min / step);
     var end   = step * Math[roundInside ? 'floor' : 'ceil' ](max / step);
 
+    if (options.onlyPositiveTicks) {
+      start = Math.max(0, start);
+    }
 
     tickFormat = pv.Format.number().fractionDigits(Math.max(0, -exponent));
 
