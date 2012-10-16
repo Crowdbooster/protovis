@@ -236,6 +236,7 @@ pv.Scale.quantitative = function() {
    * @param {boolean} [options.numberExponentMin=-Inifinity] minimum value for the step exponent.
    * @param {boolean} [options.numberExponentMax=+Inifinity] maximum value for the step exponent.
    * @param {boolean} [options.prettyFormatBigNumbers=false] Use abbreviations for large numbers, i.e. [3,000, ..., 8,000] => [3.0K, ..., 8.0K]
+   * @param {boolean} [options.onlyPositiveTicks=false] Discard all negative ticks.
    * @returns {number[]} an array input domain values to use as ticks.
    */
   scale.ticks = function(m, options) {
@@ -439,6 +440,9 @@ pv.Scale.quantitative = function() {
     var start = step * Math[roundInside ? 'ceil'  : 'floor'](min / step);
     var end   = step * Math[roundInside ? 'floor' : 'ceil' ](max / step);
 
+    if (options.onlyPositiveTicks) {
+      start = Math.max(0, start);
+    }
 
     tickFormat = pv.Format.number().fractionDigits(Math.max(0, -exponent));
 
