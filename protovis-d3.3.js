@@ -1,4 +1,4 @@
-// a9ac4409d424066e788f91c97a00163ff6815448
+// 48dacecc5a77613e73b49923165fce98b1a931ae
 /**
  * @class The built-in Array class.
  * @name Array
@@ -150,7 +150,7 @@ pv.version = {
    * @type number
    * @constant
    */
-   revision: 2
+   revision: 3
 };
 
 /**
@@ -953,7 +953,8 @@ pv.Format.number = function() {
       group = ",", // default group separator
       np = "\u2212", // default negative prefix
       ns = "",
-      prettyFormatBigNumbers = false; // default negative suffix
+      prettyFormatBigNumbers = false;
+
 
   /** @private */
   function format(x) {
@@ -961,15 +962,15 @@ pv.Format.number = function() {
     if (Infinity > maxf) x = Math.round(x * maxk) / maxk;
     if (prettyFormatBigNumbers) {
       x = parseInt(x, 10);
-      return x < -1e12 && (x/1e12).toFixed(1) + ' T' ||
-            x < -1e9 && (x/1e9).toFixed(1) + ' B' ||
-            x < -1e6 && (x/1e6).toFixed(1) + ' M' ||
-            x < -1e3 && (x/1e3).toFixed(1) + 'K' ||
+      return x < -1e12 && (x/1e12) + ' T' ||
+            x < -1e9 && (x/1e9) + ' B' ||
+            x < -1e6 && (x/1e6) + ' M' ||
+            x < -1e3 && (x/1e3) + 'K' ||
             x < 1e3 && x ||
-            x < 1e6 && (x/1e3).toFixed(1) + ' K' ||
-            x < 1e9 && (x/1e6).toFixed(1) + ' M' ||
-            x < 1e12 && (x/1e9).toFixed(1) + ' B' ||
-            x < 1e15 && (x/1e12).toFixed(1) + ' T' ||
+            x < 1e6 && (x/1e3) + ' K' ||
+            x < 1e9 && (x/1e6) + ' M' ||
+            x < 1e12 && (x/1e9) + ' B' ||
+            x < 1e15 && (x/1e12) + ' T' ||
             x;
     }
 
