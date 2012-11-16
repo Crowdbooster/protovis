@@ -1,4 +1,4 @@
-// 48dacecc5a77613e73b49923165fce98b1a931ae
+// 69d6cb1b7c270a0877ffee56c40bee4e97e847c6
 /**
  * @class The built-in Array class.
  * @name Array
@@ -150,7 +150,7 @@ pv.version = {
    * @type number
    * @constant
    */
-   revision: 3
+   revision: 4
 };
 
 /**
@@ -5506,6 +5506,9 @@ pv.Colors.category19 = function() {
      *    linear-gradient(to top left, white, black)
      */
     function parseLinearGradient(text) {
+        if (text in gradientCache) {
+            return gradientCache[text];
+        }
         var terms = parseText(text);
         if (!terms.length) {
             return null;
@@ -5557,8 +5560,9 @@ pv.Colors.category19 = function() {
             case 0: return null;
             case 1: return new pv.FillStyle.Solid(stops[0].color, 1);
         }
+        gradientCache[text] = new pv.FillStyle.LinearGradient(angle, stops);
 
-        return new pv.FillStyle.LinearGradient(angle, stops);
+        return gradientCache[text];
     }
 
     /*
@@ -5827,6 +5831,8 @@ pv.Colors.category19 = function() {
     };
 
     // ----------------
+
+    var gradientCache = {};
 
     var LinearGradient = pv.FillStyle.LinearGradient = function(angle, stops) {
         Gradient.call(this, 'lineargradient', stops);

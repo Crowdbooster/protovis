@@ -72,6 +72,9 @@
      *    linear-gradient(to top left, white, black)
      */
     function parseLinearGradient(text) {
+        if (text in gradientCache) {
+            return gradientCache[text];
+        }
         var terms = parseText(text);
         if (!terms.length) {
             return null;
@@ -123,8 +126,9 @@
             case 0: return null;
             case 1: return new pv.FillStyle.Solid(stops[0].color, 1);
         }
+        gradientCache[text] = new pv.FillStyle.LinearGradient(angle, stops);
 
-        return new pv.FillStyle.LinearGradient(angle, stops);
+        return gradientCache[text];
     }
 
     /*
@@ -393,6 +397,8 @@
     };
 
     // ----------------
+
+    var gradientCache = {};
 
     var LinearGradient = pv.FillStyle.LinearGradient = function(angle, stops) {
         Gradient.call(this, 'lineargradient', stops);
