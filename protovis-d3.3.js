@@ -958,6 +958,10 @@ pv.Format.number = function() {
 
   /** @private */
   function format(x) {
+    /* If less than 1k, don't do anything */
+    if (x < 1e3){
+      return x;
+    }    
     /* Round the fractional part, and split on decimal separator. */
     if (Infinity > maxf) x = Math.round(x * maxk) / maxk;
     if (prettyFormatBigNumbers) {
