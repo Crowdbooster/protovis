@@ -1,4 +1,4 @@
-// 69d6cb1b7c270a0877ffee56c40bee4e97e847c6
+// 6982a70e43fdead34364d7e0f6a512bda4309119
 /**
  * @class The built-in Array class.
  * @name Array
@@ -958,14 +958,15 @@ pv.Format.number = function() {
 
   /** @private */
   function format(x) {
-    /* If less than 1k, don't do anything */
-    if (x < 1e3){
-      x = parseFloat(x).toFixed(1);
-      return (((x * 10) % 10) > 0) ? x : Math.round(x);
-    }
     /* Round the fractional part, and split on decimal separator. */
     if (Infinity > maxf) x = Math.round(x * maxk) / maxk;
     if (prettyFormatBigNumbers) {
+      /* If less than 1k, don't do anything */
+      if (x < 1e3 && x > -1e3) {
+        x = parseFloat(x).toFixed(1);
+        return (((x * 10) % 10) > 0) ? x : Math.round(x);
+      }
+
       x = parseInt(x, 10);
       return x < -1e12 && (x/1e12) + ' T' ||
             x < -1e9 && (x/1e9) + ' B' ||
