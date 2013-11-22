@@ -453,7 +453,7 @@ pv.Scale.quantitative = function() {
       ticks.reverse();
     }
     if (prettyFormatBigNumbers) {
-      tickFormat = pv.Format.number().bigNumbers(true);
+      tickFormat = pv.Format.number().fractionDigits(Math.max(0, -exponent)).bigNumbers(true);
     }
 
     ticks.roundInside = roundInside;
