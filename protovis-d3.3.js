@@ -1,4 +1,4 @@
-// 6d969046e66e17e5377593f7d0812c474bbe1e04
+// 289586bbd2d6c12419e6bd9e57b987684c8aace4
 /**
  * @class The built-in Array class.
  * @name Array
@@ -961,22 +961,22 @@ pv.Format.number = function() {
     /* Round the fractional part, and split on decimal separator. */
     if (Infinity > maxf) x = Math.round(x * maxk) / maxk;
     if (prettyFormatBigNumbers) {
-      /* If less than 1k, don't do anything */
-      if (x < 1e3 && x > -1e3) {
+      /* If less than 10k, don't do anything */
+      if (x < 1e4 && x > -1e4) {
         x = parseFloat(x).toFixed(1);
         return (((x * 10) % 10) > 0) ? x : Math.round(x);
       }
 
       x = parseInt(x, 10);
-      return x < -1e12 && (x/1e12) + ' T' ||
-            x < -1e9 && (x/1e9) + ' B' ||
-            x < -1e6 && (x/1e6) + ' M' ||
-            x < -1e3 && (x/1e3) + 'K' ||
+      return x < -1e12 && (x/1e12).toPrecision(4) + ' T' ||
+            x < -1e9 && (x/1e9).toPrecision(4) + ' B' ||
+            x < -1e6 && (x/1e6).toPrecision(4) + ' M' ||
+            x < -1e3 && (x/1e3).toPrecision(4) + 'K' ||
             x < 1e3 && x ||
-            x < 1e6 && (x/1e3) + ' K' ||
-            x < 1e9 && (x/1e6) + ' M' ||
-            x < 1e12 && (x/1e9) + ' B' ||
-            x < 1e15 && (x/1e12) + ' T' ||
+            x < 1e6 && (x/1e3).toPrecision(4) + ' K' ||
+            x < 1e9 && (x/1e6).toPrecision(4) + ' M' ||
+            x < 1e12 && (x/1e9).toPrecision(4) + ' B' ||
+            x < 1e15 && (x/1e12).toPrecision(4) + ' T' ||
             x;
     }
 
