@@ -48,7 +48,7 @@ pv.Format.number = function() {
             x < 1e12 && (x/1e9).toPrecision(4) + ' B' ||
             x < 1e15 && (x/1e12).toPrecision(4) + ' T' ||
             x;
-    }sdfsdf
+    }
 
     var s = String(Math.abs(x)).split(".");
 
